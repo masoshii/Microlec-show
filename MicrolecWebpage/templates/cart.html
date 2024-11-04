@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head> <!---Aquí va todo lo que no se va a ver :)--->
+    <!--Config-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Microlec | Carro ({{ total_quantity }})</title>
+    {% load static %}
+    <link rel="shortcut icon" href="{% static 'resources/favicon.ico' %}" type="image/x-icon">
+    <link rel="stylesheet" type='text/css' href="{% static 'cart/css/cart.css' %}">
+    <link rel="stylesheet" type='text/css' href="{% static 'css/navbar-defaults.css' %}">
+    <link rel="stylesheet" type='text/css' href="{% static 'css/footer-defaults.css' %}">
+    <link rel="stylesheet" type='text/css' href="{% static 'css/defaults.css' %}">
+    <!--Exports Externos-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="darken-bg" onclick="closeOnClick()"></div>
+    {% include 'navbar_base.html' %}
+    <main>
+        <div class="container-fluid mx-auto" id="cart-container">
+            <div class="row md-auto" id="title-col">
+                <div class="col-2">
+                    <h1 id="cart-title">Carro</h1>
+                </div>
+            </div>
+        </div>
+        <div class="row mx-auto justify-content-center">
+            <div class="col-6" id="product-list">
+                {% if user_products %}
+                    {% for user_product in user_products %}
+                        <div class="row product-item" id="prod-{{ user_product.id_product.id_product }}">
+                            <div class="col-md-2 d-flex justify-content-center align-items-center "> <!--Column 1: Product Image-->
+                                <img src="{{ user_product.id_product.image_product.url }}" alt="Test Alt" class="product-item-image">
+                            </div>
+                            <div class="col-md-5 align-self-end"> <!--Column 2: Product title, Delete from cart-->
+                                <div class="row">
+                                    <p class="product-item-brand">{{ user_product.id_product.id_brand.name_brand }}</p>
+                                </div>
+                                <div class="row">
+                                    <p class="product-item-name">{{ user_product.id_product.name_product }}</p>
+                                </div>
+                                <div class="row">
+                                    <a class="product-item-delete" href="{% url 'remove_from_cart' product_id=user_product.id_product.id_product %}">Eliminar del Carro</a>
+                                </div>
+                            </div>
+                            <div class="col-md-2 align-self-center"> <!--Column 3: Product Quantity-->
+                                <div class="row">
+                                    <input type="number" name="quantity" class="product-quantity-select" id="quantity-{{ user_product.id_product.id_product }}" min="1" max="{{ user_product.id_product.stock_product }}" value="{{ user_product.quantity }}">
+                                </div>
+                            </div>
+                            <div class="col-md-3 align-self-center"> <!--Column 4: Product Price-->
+                                <div class="row">
+                                    <p style="font-size: 20px;" class="product-price">${{ user_product.id_product.price_product }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row product-sep"></div>
+                        <hr>
+                    {% endfor %}
+                {% else %}
+                    <div class="row text-center" id="no-items">
+                        <h2>¡No hay productos que mostrar!</h2>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="col-6" id="product-summary">
+                <div class="row">
+                    <div class="col-4">
+                        <h2 id="summary-title">Resúmen</h2>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <hr id="summary-sep">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-9">
+                        <h4 id="product-qtitle">Productos ({{ total_quantity }}):</h4>
+                    </div>
+                    <div class="col-3">
+                        <h4 id="product-qvalue">${{ allproducts_price }}</h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-9">
+                        <h4 id="discount-title">Descuento:</h4>
+                    </div>
+                    <div class="col-3">
+                        <h4 id="discount-value">-$0</h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <hr id="summary-sep">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-9">
+                        <h4 id="tship-title">Envío:</h4>
+                    </div>
+                    <div class="col-3">
+                        <h4 id="tship-value">${{ shipping_price }}</h4>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-9">
+                        <h4 id="tproduct-title">Total:</h4>
+                    </div>
+                    <div class="col-3">
+                        <h4 id="tproduct-value">${{ total_price }}</h4>
+                    </div>
+                </div>
+                <div class="row">
+                        <button id="proceed-btn">Proceder al pago</button>
+                </div>
+            </div>
+        </div>
+        <br>
+        <br>
+        <div class="modal top fade" id="send-confirmation-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-mdb-backdrop="true" data-mdb-keyboard="false">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">¿Está seguro?</h5>
+                <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">...</div>
+                <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-mdb-dismiss="modal" id="cancel-btn">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" id="confirm-btn">Confirmar</button>
+                </div>
+            </div>
+            </div>
+        </div>
+    </main>
+    {% include 'footer_base.html' %}
+    <script>
+        const cartButtons = document.querySelectorAll('.cart-button');
+
+        cartButtons.forEach(button => {
+            button.addEventListener('click', cartClick);
+        });
+        
+        function cartClick() {
+            let button = this;
+            button.classList.add('clicked');
+        }
+    </script>
+    <script src="{% static 'js/jquery-3.7.1.min.js.js' %}"></script>
+    <script>
+        $(document).ready(function() {
+            $('input[name="quantity"]').on('change', function() {
+                var productId = $(this).attr('id').split('-')[1];
+                var newQuantity = $(this).val();
+                $.ajax({
+                    url: '/cart/update_quantity/' + productId + '/',
+                    type: 'POST',
+                    data: {
+                        'new_quantity': newQuantity,
+                        'csrfmiddlewaretoken': '{{ csrf_token }}'
+                    },
+                    success: function(data) {
+                        if (data.success) {
+                            location.reload();
+                            console.log('Cantidad actualizada exitosamente');
+                        } else {
+                            console.error('Error al actualizar la cantidad');
+                        }
+                    },
+                    error: function() {
+                        alert('Error al actualizar la cantidad.');
+                    }
+                });
+            });
+        });
+    </script>
+    <script src="{% static 'js/nav_scripts.js' %}"></script>
+    <script src="{% static 'cart/js/cart.js' %}"></script>
+    <script src="{% static 'js/utils.js' %}"></script>
+</body>
+</html>
